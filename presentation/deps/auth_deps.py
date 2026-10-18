@@ -1,18 +1,18 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 import jwt
 
 from infra.core.repositories import (
     UsuarioRepository
 )
-from infra.database import SessionLocal
+from presentation.deps.db_deps import get_db
 
 from application import AuthService
 from presentation.security import SECRET_KEY, ALGORITHM
 
 
-def get_auth_service() -> AuthService:
-    db = SessionLocal()
+def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
     usuario_repo = UsuarioRepository(db)
 
     return AuthService(usuario_repo)

@@ -10,3 +10,4 @@ class Gremio:
         self.instituicao = instituicao
         self.etapa_ensino = etapa_ensino
         self.legitimado = legitimado
+        self.fundador_id = fundador_id

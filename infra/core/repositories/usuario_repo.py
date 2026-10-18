@@ -21,6 +21,13 @@ class UsuarioRepository:
         orm_user = self.db.get(UsuarioORM, id)
         return usuario_to_domain(orm_user)
 
+    def get_many(self, ids: list[int]) -> dict[int, Usuario]:
+        """Busca vários usuários de uma vez. Retorna um mapa id -> Usuario."""
+        if not ids:
+            return {}
+        orm_users = self.db.query(UsuarioORM).filter(UsuarioORM.id.in_(set(ids))).all()
+        return {u.id: usuario_to_domain(u) for u in orm_users}
+
     def get_by_email(self, email: str) -> Usuario | None:
         orm_user = self.db.query(UsuarioORM).filter(UsuarioORM.email == email).first()
         return usuario_to_domain(orm_user)

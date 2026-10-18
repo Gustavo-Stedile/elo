@@ -39,6 +39,34 @@ def criar_gremio(
         )
 
 
+@router.get("/")
+def listar_meus_gremios(
+    usuario_id: int = Depends(require_token),
+    service: GremioService = Depends(get_gremio_service),
+):
+    """Grêmios dos quais o usuário logado é membro."""
+    return {"gremios": service.listar_do_usuario(usuario_id)}
+
+
+@router.get("/{gremio_id}")
+def obter_gremio(
+    gremio_id: int,
+    usuario_id: int = Depends(require_token),
+    service: GremioService = Depends(get_gremio_service),
+):
+    return {"gremio": service.obter_do_membro(gremio_id, usuario_id)}
+
+
+@router.get("/{gremio_id}/permissoes/me")
+def minhas_permissoes_no_gremio(
+    gremio_id: int,
+    usuario_id: int = Depends(require_token),
+    service: GremioService = Depends(get_gremio_service),
+):
+    """Permissões efetivas do usuário logado no grêmio."""
+    return service.minhas_permissoes(gremio_id, usuario_id)
+
+
 # @router.patch("/{gremio_idelo}/legitimar")
 # @router.put("/{gremio_idelo}/legitimar")
 # def legitimar_gremio(

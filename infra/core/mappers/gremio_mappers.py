@@ -10,6 +10,7 @@ def gremio_to_domain(orm: GremioORM | None) -> Gremio | None:
         instituicao=orm.instituicao,
         etapa_ensino=orm.etapa_ensino,
         legitimado=orm.legitimado,
+        fundador_id=orm.fundador_id,
     )
 
 def gremio_to_orm(domain: Gremio) -> GremioORM:
@@ -19,4 +20,5 @@ def gremio_to_orm(domain: Gremio) -> GremioORM:
         instituicao=domain.instituicao,
         etapa_ensino=domain.etapa_ensino,
         legitimado=domain.legitimado,
+        fundador_id=domain.fundador_id,
     )
