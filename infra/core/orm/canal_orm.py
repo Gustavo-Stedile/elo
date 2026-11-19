@@ -1,5 +1,5 @@
 from typing import Optional
-from sqlalchemy import String, ForeignKey, UniqueConstraint
+from sqlalchemy import String, ForeignKey, UniqueConstraint, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 from infra.database import Base
 
@@ -14,3 +14,7 @@ class CanalORM(Base):
     gremio_id: Mapped[int] = mapped_column(ForeignKey("gremios.id", ondelete="CASCADE"), index=True)
     nome: Mapped[str] = mapped_column(String(100), nullable=False)
     descricao: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    permissao_ver: Mapped[int] = mapped_column(Integer, default=0)
+    permissao_ler: Mapped[int] = mapped_column(Integer, default=0)
+    permissao_escrever: Mapped[int] = mapped_column(Integer, default=0)
+    permissao_gerenciar_mensagens: Mapped[int] = mapped_column(Integer, default=0)

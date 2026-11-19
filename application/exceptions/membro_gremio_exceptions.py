@@ -18,3 +18,16 @@ class MembroNaoExisteErro(NaoEncontradoErro):
 class FundadorProtegidoErro(AcessoNegadoErro):
     def __init__(self, mensagem="O fundador do Grêmio não pode ser removido nem ter suas permissões alteradas."):
         super().__init__(mensagem)
+
+
+class MembroNaoPodeSairErro(AcessoNegadoErro):
+    def __init__(self, mensagem="Um membro não pode deixar o Grêmio."):
+        super().__init__(mensagem)
+
+
+from application.exceptions.base import RegraDeNegocioErro
+
+
+class UsuarioForaDaInstituicaoEtapaErro(RegraDeNegocioErro):
+    def __init__(self, mensagem="O RA do usuário não corresponde à Instituição e à Etapa deste Grêmio."):
+        super().__init__(mensagem)

@@ -16,3 +16,8 @@ class CargoJaExisteErro(ConflitoErro):
 class CargoPadraoProtegidoErro(RegraDeNegocioErro):
     def __init__(self, mensagem="Operação não permitida no cargo padrão do Grêmio."):
         super().__init__(mensagem)
+
+
+class LimiteOcupantesCargoErro(RegraDeNegocioErro):
+    def __init__(self, mensagem="O cargo atingiu o número máximo de ocupantes."):
+        super().__init__(mensagem)

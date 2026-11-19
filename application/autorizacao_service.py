@@ -12,7 +12,8 @@ from domain.core.autorizacao import (
     calcular_permissoes_canal,
     calcular_permissoes_gremio,
 )
-from domain.core.permissoes import Permissao, para_nomes
+from domain.core.permissoes import PERMISSOES_DE_CANAL, Permissao, para_nomes
+from application.permissao_relacional_service import PermissaoRelacionalService
 from infra.core.repositories import (
     CanalRepository,
     CargoRepository,
@@ -58,12 +59,14 @@ class AutorizacaoService:
         cargo_repository: CargoRepository,
         canal_repository: CanalRepository,
         permissao_canal_repository: PermissaoCanalRepository,
+        permissoes_relacionais: PermissaoRelacionalService | None = None,
     ):
         self.gremio_repository = gremio_repository
         self.membro_gremio_repository = membro_gremio_repository
         self.cargo_repository = cargo_repository
         self.canal_repository = canal_repository
         self.permissao_canal_repository = permissao_canal_repository
+        self.permissoes_relacionais = permissoes_relacionais
 
     # ------------------------------------------------------------------
     # Grêmio
@@ -121,6 +124,31 @@ class AutorizacaoService:
         canal_id: int,
         sobrescritas: list[PermissaoCanal] | None = None,
     ) -> int:
+        canal = self.canal_repository.get_by_id(canal_id)
+        if not canal:
+            raise CanalNaoExisteErro()
+
+        if self.permissoes_relacionais:
+            if ctx.permissoes & int(Permissao.ADMINISTRADOR):
+                return PERMISSOES_DE_CANAL
+            nomes = {
+                Permissao.VER_CANAL: "CANAL_VER",
+                Permissao.LER_HISTORICO: "CANAL_LER_HISTORICO",
+                Permissao.ENVIAR_MENSAGENS: "CANAL_ENVIAR_MENSAGENS",
+                Permissao.GERENCIAR_MENSAGENS: "CANAL_GERENCIAR_MENSAGENS",
+            }
+            efetivas = 0
+            for bit, codigo in nomes.items():
+                if self.permissoes_relacionais.membro_possui_codigo(
+                    ctx.membro.id,
+                    canal.gremio_id,
+                    "CANAL",
+                    canal.id,
+                    codigo,
+                ):
+                    efetivas |= int(bit)
+            return efetivas
+
         if sobrescritas is None:
             sobrescritas = self.permissao_canal_repository.listar_por_canal(canal_id)
 
@@ -136,12 +164,14 @@ class AutorizacaoService:
             (o for o in sobrescritas if o.usuario_id == ctx.usuario_id), None
         )
 
-        return calcular_permissoes_canal(
+        efetivas = calcular_permissoes_canal(
             ctx.permissoes,
             ow_padrao=ow_padrao,
             ow_cargos=ow_cargos,
             ow_usuario=ow_usuario,
         )
+
+        return efetivas
 
     def acessar_canal(
         self,
@@ -168,8 +198,7 @@ class AutorizacaoService:
         permissoes = self.permissoes_no_canal(ctx, canal.id)
 
         enxerga = permissoes & int(Permissao.VER_CANAL)
-        gerencia = ctx.permissoes & int(Permissao.GERENCIAR_CANAIS)
-        if not enxerga and not gerencia:
+        if not enxerga:
             raise CanalNaoExisteErro()
 
         self.exigir(permissoes, exigir)

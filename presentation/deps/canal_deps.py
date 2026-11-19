@@ -27,6 +27,7 @@ def get_canal_service(
         membro_gremio_repository=MembroGremioRepository(db),
         autorizacao=autorizacao,
         uow=UnitOfWork(db),
+        permissoes_relacionais=autorizacao.permissoes_relacionais,
     )
 
 

@@ -15,6 +15,15 @@ class CargoCriarSchema(BaseModel):
         description="Hierarquia: só se gerencia cargos de prioridade menor que a sua",
     )
     permissoes: list[PermissaoNome] = Field(default_factory=list)
+    max_ocupantes: int = Field(default=0, ge=0, description="0 significa sem limite")
+    permite_atribuicao: bool = Field(
+        default=False,
+        description="Permite que ocupantes deste cargo atribuam este cargo a membros",
+    )
+    permissao_administracao: PermissaoNome = Field(
+        default="GERENCIAR_CARGOS",
+        description="Permissão necessária para administrar e atribuir este cargo",
+    )
 
 
 class CargoAtualizarSchema(BaseModel):
@@ -22,6 +31,9 @@ class CargoAtualizarSchema(BaseModel):
     cor: Optional[str] = Field(default=None, pattern=r"^#[0-9A-Fa-f]{6}$")
     prioridade: Optional[int] = Field(default=None, ge=1, le=1000)
     permissoes: Optional[list[PermissaoNome]] = None
+    max_ocupantes: Optional[int] = Field(default=None, ge=0)
+    permite_atribuicao: Optional[bool] = None
+    permissao_administracao: Optional[PermissaoNome] = None
 
 
 class CargoResposta(BaseModel):
@@ -32,6 +44,9 @@ class CargoResposta(BaseModel):
     prioridade: int
     permissoes: list[str]
     padrao: bool
+    max_ocupantes: int
+    permite_atribuicao: bool
+    permissao_administracao: str
 
     @classmethod
     def de_dominio(cls, cargo: Cargo) -> "CargoResposta":
@@ -43,4 +58,11 @@ class CargoResposta(BaseModel):
             prioridade=cargo.prioridade,
             permissoes=para_nomes(cargo.permissoes),
             padrao=cargo.padrao,
+            max_ocupantes=cargo.max_ocupantes,
+            permite_atribuicao=cargo.permite_atribuicao,
+            permissao_administracao=(
+                para_nomes(cargo.permissao_administracao)[0]
+                if para_nomes(cargo.permissao_administracao)
+                else "GERENCIAR_CARGOS"
+            ),
         )

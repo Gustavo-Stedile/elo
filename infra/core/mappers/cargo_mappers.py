@@ -13,6 +13,9 @@ def cargo_to_domain(orm: CargoORM | None) -> Cargo | None:
         prioridade=orm.prioridade,
         permissoes=orm.permissoes,
         padrao=orm.padrao,
+        max_ocupantes=orm.max_ocupantes,
+        permite_atribuicao=orm.permite_atribuicao,
+        permissao_administracao=orm.permissao_administracao,
     )
 
 
@@ -25,4 +28,7 @@ def cargo_to_orm(domain: Cargo) -> CargoORM:
         prioridade=domain.prioridade,
         permissoes=domain.permissoes,
         padrao=domain.padrao,
+        max_ocupantes=domain.max_ocupantes,
+        permite_atribuicao=domain.permite_atribuicao,
+        permissao_administracao=domain.permissao_administracao,
     )

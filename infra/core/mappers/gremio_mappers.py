@@ -7,6 +7,7 @@ def gremio_to_domain(orm: GremioORM | None) -> Gremio | None:
     return Gremio(
         id=orm.id,
         nome=orm.nome,
+        descricao=orm.descricao,
         instituicao=orm.instituicao,
         etapa_ensino=orm.etapa_ensino,
         legitimado=orm.legitimado,
@@ -17,6 +18,7 @@ def gremio_to_orm(domain: Gremio) -> GremioORM:
     return GremioORM(
         id=domain.id,
         nome=domain.nome,
+        descricao=domain.descricao,
         instituicao=domain.instituicao,
         etapa_ensino=domain.etapa_ensino,
         legitimado=domain.legitimado,

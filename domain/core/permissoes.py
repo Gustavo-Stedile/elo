@@ -29,6 +29,8 @@ class Permissao(IntFlag):
     GERENCIAR_CARGOS = 1 << 9     # criar/editar cargos, atribuí-los e dar permissões a usuários
     GERENCIAR_MEMBROS = 1 << 10   # adicionar/remover membros
     GERENCIAR_GREMIO = 1 << 11    # editar dados do grêmio
+    CRIAR_ENQUETE = 1 << 12       # criar enquetes no grêmio ou em canal
+    CRIAR_COMUNICADO = 1 << 13     # criar comunicados no grêmio
 
     # Ignora todas as verificações e sobrescritas de canal.
     ADMINISTRADOR = 1 << 15

@@ -7,6 +7,8 @@ from infra.core.repositories import (
     GremioRepository,
     MembroGremioRepository,
     PermissaoCanalRepository,
+    PermissaoObjetoRepository,
+    PermissaoGlobalRepository,
     UsuarioRepository,
 )
 from infra.unit_of_work import UnitOfWork
@@ -17,16 +19,22 @@ from application import (
     CargoService,
     GremioService,
     MembroService,
+    PermissaoRelacionalService,
+    PermissaoGlobalService,
 )
 
 
 def get_autorizacao_service(db: Session = Depends(get_db)) -> AutorizacaoService:
+    permissoes_relacionais = PermissaoRelacionalService(
+        PermissaoObjetoRepository(db)
+    )
     return AutorizacaoService(
         gremio_repository=GremioRepository(db),
         membro_gremio_repository=MembroGremioRepository(db),
         cargo_repository=CargoRepository(db),
         canal_repository=CanalRepository(db),
         permissao_canal_repository=PermissaoCanalRepository(db),
+        permissoes_relacionais=permissoes_relacionais,
     )
 
 
@@ -34,6 +42,9 @@ def get_gremio_service(
     db: Session = Depends(get_db),
     autorizacao: AutorizacaoService = Depends(get_autorizacao_service),
 ) -> GremioService:
+    permissoes_relacionais = PermissaoRelacionalService(
+        PermissaoObjetoRepository(db)
+    )
     return GremioService(
         gremio_repository=GremioRepository(db),
         membro_gremio_repository=MembroGremioRepository(db),
@@ -42,6 +53,10 @@ def get_gremio_service(
         usuario_repository=UsuarioRepository(db),
         autorizacao=autorizacao,
         uow=UnitOfWork(db),
+        permissoes_relacionais=permissoes_relacionais,
+        permissoes_globais=PermissaoGlobalService(
+            PermissaoGlobalRepository(db)
+        ),
     )
 
 
@@ -57,6 +72,9 @@ def get_membro_service(
         usuario_repository=UsuarioRepository(db),
         autorizacao=autorizacao,
         uow=UnitOfWork(db),
+        permissoes_relacionais=PermissaoRelacionalService(
+            PermissaoObjetoRepository(db)
+        ),
     )
 
 
@@ -68,4 +86,7 @@ def get_cargo_service(
         cargo_repository=CargoRepository(db),
         autorizacao=autorizacao,
         uow=UnitOfWork(db),
+        permissoes_relacionais=PermissaoRelacionalService(
+            PermissaoObjetoRepository(db)
+        ),
     )

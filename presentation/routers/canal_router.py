@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Response, status
+from domain.core.permissoes import de_nomes
 
 from application import CanalService
-from domain.core.permissoes import de_nomes
 from presentation.deps.auth_deps import require_token
 from presentation.deps.canal_deps import get_canal_service
 from presentation.schemas.canal_schemas import (
@@ -37,7 +37,9 @@ def criar_canal(
     usuario_id: int = Depends(require_token),
     service: CanalService = Depends(get_canal_service),
 ):
-    canal = service.criar_canal(gremio_id, usuario_id, payload.nome, payload.descricao)
+    canal = service.criar_canal(
+        gremio_id, usuario_id, payload.nome, payload.descricao
+    )
     return CanalResposta.de_dominio(canal)
 
 
@@ -59,7 +61,10 @@ def atualizar_canal(
     service: CanalService = Depends(get_canal_service),
 ):
     canal = service.atualizar_canal(
-        canal_id, usuario_id, nome=payload.nome, descricao=payload.descricao
+        canal_id,
+        usuario_id,
+        nome=payload.nome,
+        descricao=payload.descricao,
     )
     return CanalResposta.de_dominio(canal)
 
@@ -144,4 +149,52 @@ def remover_permissao_do_usuario(
     service: CanalService = Depends(get_canal_service),
 ):
     service.remover_permissao_usuario(canal_id, usuario_id, alvo_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/{canal_id}/permissoes-relacionais")
+def listar_permissoes_relacionais(
+    canal_id: int,
+    cargo_id: int,
+    usuario_id: int = Depends(require_token),
+    service: CanalService = Depends(get_canal_service),
+):
+    return {
+        "permissoes": service.listar_permissoes_relacionais(
+            canal_id, usuario_id, cargo_id
+        )
+    }
+
+
+@router.put(
+    "/{canal_id}/permissoes-relacionais/cargos/{cargo_id}/{permissao_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def conceder_permissao_relacional_canal(
+    canal_id: int,
+    cargo_id: int,
+    permissao_id: int,
+    usuario_id: int = Depends(require_token),
+    service: CanalService = Depends(get_canal_service),
+):
+    service.definir_permissao_relacional_cargo(
+        canal_id, usuario_id, cargo_id, permissao_id, True
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete(
+    "/{canal_id}/permissoes-relacionais/cargos/{cargo_id}/{permissao_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def revogar_permissao_relacional_canal(
+    canal_id: int,
+    cargo_id: int,
+    permissao_id: int,
+    usuario_id: int = Depends(require_token),
+    service: CanalService = Depends(get_canal_service),
+):
+    service.definir_permissao_relacional_cargo(
+        canal_id, usuario_id, cargo_id, permissao_id, False
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

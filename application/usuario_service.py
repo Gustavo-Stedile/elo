@@ -4,11 +4,27 @@ from application.exceptions.usuario_exceptions import (
     UsuarioNaoExisteErro,
 )
 from domain.core import Usuario
-from infra.core.repositories import UsuarioRepository
+from domain.core import MembroGremio
+from application.ra_resolver import resolvedor_ra
+from infra.core.repositories import (
+    GremioRepository,
+    MembroGremioRepository,
+    UsuarioRepository,
+)
+from infra.unit_of_work import UnitOfWork
 
 class UsuarioService:
-    def __init__(self, usuario_repository: UsuarioRepository):
+    def __init__(
+        self,
+        usuario_repository: UsuarioRepository,
+        gremio_repository: GremioRepository | None = None,
+        membro_gremio_repository: MembroGremioRepository | None = None,
+        uow: UnitOfWork | None = None,
+    ):
         self.usuario_repository = usuario_repository
+        self.gremio_repository = gremio_repository
+        self.membro_gremio_repository = membro_gremio_repository
+        self.uow = uow
 
     def criar_usuario(
         self, nome: str, cpf: str, email: str, 
@@ -31,6 +47,28 @@ class UsuarioService:
         )
 
         res = self.usuario_repository.create(novo_usuario)
+
+        dados_ra = None
+        if ra:
+            dados_ra = resolvedor_ra.resolve(ra)
+            if (
+                dados_ra
+                and self.gremio_repository
+                and self.membro_gremio_repository
+                and self.uow
+            ):
+                gremio = self.gremio_repository.get_by_instituicao_etapa(
+                    dados_ra.instituicao,
+                    dados_ra.etapa_ensino,
+                )
+                if gremio:
+                    self.membro_gremio_repository.create(MembroGremio(
+                        id=None,
+                        usuario_id=res.id,
+                        gremio_id=gremio.id,
+                    ))
+        if self.uow:
+            self.uow.commit()
         
         return {
             "id": res.id,
@@ -38,6 +76,8 @@ class UsuarioService:
             "cpf": res.cpf,
             "email": res.email, 
             "ra": res.ra, 
+            "instituicao": dados_ra.instituicao if dados_ra else None,
+            "etapa_ensino": dados_ra.etapa_ensino if dados_ra else None,
         }
 
     def buscar_por_id(self, id: int) -> Usuario:
@@ -45,6 +85,8 @@ class UsuarioService:
 
         if not res:
             raise UsuarioNaoExisteErro()
+
+        dados_ra = resolvedor_ra.resolve(res.ra) if res.ra else None
         
         return {
             "id": res.id,
@@ -52,4 +94,6 @@ class UsuarioService:
             "cpf": res.cpf,
             "email": res.email, 
             "ra": res.ra, 
+            "instituicao": dados_ra.instituicao if dados_ra else None,
+            "etapa_ensino": dados_ra.etapa_ensino if dados_ra else None,
         }

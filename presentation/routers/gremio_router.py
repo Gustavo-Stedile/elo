@@ -8,6 +8,7 @@ from application.exceptions.usuario_exceptions import UsuarioNaoExisteErro
 
 from presentation.schemas.gremio_schemas import (
     GremioCriarSchema,
+    GremioAtualizarSchema,
 )
 
 router = APIRouter(prefix="/gremio", tags=["Grêmio"])
@@ -16,14 +17,12 @@ router = APIRouter(prefix="/gremio", tags=["Grêmio"])
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def criar_gremio(
     payload: GremioCriarSchema,
-    usuario_id: dict = Depends(require_token),
+    usuario_id: int = Depends(require_token),
     service: GremioService = Depends(get_gremio_service),
 ):
     try:
         gremio = service.criar_gremio(
             payload.nome_gremio,
-            instituicao="eita",
-            etapa_ensino="eita",
             fundador_id=usuario_id
         )
 
@@ -39,6 +38,35 @@ def criar_gremio(
         )
 
 
+@router.patch("/{gremio_id}/legitimar")
+def legitimar_gremio(
+    gremio_id: int,
+    usuario_id: int = Depends(require_token),
+    service: GremioService = Depends(get_gremio_service),
+):
+    gremio = service.legitimar_gremio(gremio_id, usuario_id)
+    return {
+        "mensagem": "Grêmio legitimado com sucesso!",
+        "gremio": gremio,
+    }
+
+
+@router.patch("/{gremio_id}")
+def atualizar_gremio(
+    gremio_id: int,
+    payload: GremioAtualizarSchema,
+    usuario_id: int = Depends(require_token),
+    service: GremioService = Depends(get_gremio_service),
+):
+    gremio = service.atualizar(
+        gremio_id,
+        usuario_id,
+        nome=payload.nome,
+        descricao=payload.descricao,
+    )
+    return {"gremio": gremio}
+
+
 @router.get("/")
 def listar_meus_gremios(
     usuario_id: int = Depends(require_token),
@@ -46,6 +74,14 @@ def listar_meus_gremios(
 ):
     """Grêmios dos quais o usuário logado é membro."""
     return {"gremios": service.listar_do_usuario(usuario_id)}
+
+
+@router.get("/disponibilidade/me")
+def verificar_disponibilidade_criacao(
+    usuario_id: int = Depends(require_token),
+    service: GremioService = Depends(get_gremio_service),
+):
+    return service.verificar_disponibilidade_criacao(usuario_id)
 
 
 @router.get("/{gremio_id}")
@@ -204,4 +240,3 @@ def minhas_permissoes_no_gremio(
 #             status_code=status.HTTP_404_NOT_FOUND,
 #             detail="Grêmio não encontrado.",
 #         )
-

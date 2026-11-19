@@ -1,5 +1,6 @@
+import re
 from typing import Optional
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 class UsuarioCadastroSchema(BaseModel):
     nome: str = Field(
@@ -35,3 +36,21 @@ class UsuarioCadastroSchema(BaseModel):
         description="Registro Acadêmico (opcional)",
         examples=["202612345"]
     )
+
+    @field_validator("cpf")
+    @classmethod
+    def validar_cpf(cls, valor: str) -> str:
+        cpf = re.sub(r"\D", "", valor)
+        if len(cpf) != 11:
+            raise ValueError("CPF deve conter 11 dígitos.")
+        if cpf == cpf[0] * 11:
+            raise ValueError("CPF inválido.")
+        return cpf
+
+    @field_validator("ra")
+    @classmethod
+    def normalizar_ra(cls, valor: str | None) -> str | None:
+        if valor is None:
+            return None
+        valor = valor.strip()
+        return valor or None

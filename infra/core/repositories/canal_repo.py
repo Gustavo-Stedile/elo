@@ -38,6 +38,10 @@ class CanalRepository:
             orm_obj = self.db.get(CanalORM, canal.id)
             orm_obj.nome = canal.nome
             orm_obj.descricao = canal.descricao
+            orm_obj.permissao_ver = canal.permissao_ver
+            orm_obj.permissao_ler = canal.permissao_ler
+            orm_obj.permissao_escrever = canal.permissao_escrever
+            orm_obj.permissao_gerenciar_mensagens = canal.permissao_gerenciar_mensagens
             self.db.flush()
             return canal_to_domain(orm_obj)
         except IntegrityError as e:

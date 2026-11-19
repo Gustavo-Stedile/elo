@@ -14,8 +14,21 @@ from presentation.deps.usuario_deps import (
 )
 
 from presentation.schemas.usuario_schemas import UsuarioCadastroSchema
+from application.ra_resolver import resolvedor_ra
 
 router = APIRouter(prefix="/usuario")
+
+
+@router.get("/ra/{ra}")
+def resolver_ra(ra: str):
+    dados = resolvedor_ra.resolve(ra)
+    if not dados:
+        return {"ra": None, "instituicao": None, "etapa_ensino": None}
+    return {
+        "ra": ra,
+        "instituicao": dados.instituicao,
+        "etapa_ensino": dados.etapa_ensino,
+    }
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def cadastrar(
@@ -66,11 +79,12 @@ def obter_usuario_logado(
 
 @router.get("/{id}")
 def obter_usuario(
+    id: int,
     usuario_id: int = Depends(require_token),
     usuario_service: UsuarioService = Depends(get_usuario_service)
 ):
     try:
-        usuario = usuario_service.buscar_por_id(usuario_id)
+        usuario = usuario_service.buscar_por_id(id)
         return {
             "usuario": {
                 "nome": usuario["nome"],

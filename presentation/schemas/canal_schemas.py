@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 from domain.core import Canal, PermissaoCanal
 from domain.core.permissoes import para_nomes
 
-
 class CanalCriarSchema(BaseModel):
     nome: str = Field(..., min_length=1, max_length=100, examples=["avisos"])
     descricao: Optional[str] = Field(default=None, max_length=255)

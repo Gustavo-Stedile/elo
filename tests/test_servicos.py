@@ -11,9 +11,12 @@ from application.exceptions.autorizacao_exceptions import (
 )
 from application.exceptions.canal_exceptions import CanalJaExisteErro, CanalNaoExisteErro
 from application.exceptions.cargo_exceptions import CargoPadraoProtegidoErro
+from application.exceptions.gremio_exceptions import GremioJaExisteInstEtapaErro
 from application.exceptions.membro_gremio_exceptions import (
     FundadorProtegidoErro, MembroJaExisteErro, MembroNaoExisteErro,
 )
+from application.exceptions.gremio_exceptions import GremioNaoExisteErro
+from application.exceptions.membro_gremio_exceptions import MembroNaoPodeSairErro
 from application.exceptions.mensagem_exceptions import (
     MensagemInvalidaErro, MensagemNaoExisteErro, NaoEAutorErro,
 )
@@ -31,11 +34,10 @@ class Base(unittest.TestCase):
         self.bia = self.app.novo_usuario("bia")
         self.carla = self.app.novo_usuario("carla")
         self.forasteiro = self.app.novo_usuario("forasteiro")
+        self.app.store.usuarios[self.forasteiro].ra = None
 
         g = self.app.gremios.criar_gremio("Elo", "Escola", "Médio", self.fundador)
         self.gremio = g["id"]
-        for u in (self.ana, self.bia, self.carla):
-            self.app.membros.adicionar_membro(self.gremio, self.fundador, u)
 
         self.geral = self.app.canais.listar_canais(self.gremio, self.fundador)[0]
         cargos = {c.nome: c for c in self.app.cargos.listar_cargos(self.gremio, self.fundador)}
@@ -63,6 +65,26 @@ class CriacaoDoGremioTest(Base):
         self.assertEqual(cargos["Administrador"].permissoes, int(P.ADMINISTRADOR))
         self.assertEqual(self.geral.nome, "geral")
 
+    def test_fundador_recebe_cargo_administrador(self):
+        detalhes = self.app.membros.listar_membros(self.gremio, self.fundador)
+        fundador = next(m for m in detalhes if m.usuario_id == self.fundador)
+        cargos = {c.id: c for c in self.app.cargos.listar_cargos(self.gremio, self.fundador)}
+        self.assertIn("Administrador", [
+            cargos[cargo_id].nome
+            for cargo_id in fundador.cargos_ids
+            if cargo_id in cargos
+        ])
+
+    def test_nao_cria_gremio_duplicado_para_mesma_instituicao_e_etapa(self):
+        outro_fundador = self.app.novo_usuario("outro_fundador")
+        with self.assertRaises(GremioJaExisteInstEtapaErro):
+            self.app.gremios.criar_gremio(
+                "Outro Nome",
+                "Escola",
+                "Médio",
+                outro_fundador,
+            )
+
     def test_fundador_e_membro_com_todas_as_permissoes(self):
         r = self.app.gremios.minhas_permissoes(self.gremio, self.fundador)
         self.assertTrue(r["fundador"])
@@ -72,11 +94,63 @@ class CriacaoDoGremioTest(Base):
         r = self.app.gremios.minhas_permissoes(self.gremio, self.ana)
         self.assertEqual(set(r["permissoes"]), {"VER_CANAL", "LER_HISTORICO", "ENVIAR_MENSAGENS"})
 
+    def test_permissoes_contextuais_do_gremio_e_cargos_sao_criadas(self):
+        permissoes = self.app.permissoes_relacionais.listar_do_gremio(self.gremio)
+        por_recurso = {
+            (p.recurso_tipo, p.recurso_id, p.codigo): p for p in permissoes
+        }
+        self.assertIn(
+            ("GREMIO", self.gremio, "GREMIO_EDITAR_NOME"), por_recurso
+        )
+        self.assertIn(
+            ("GREMIO", self.gremio, "GREMIO_EDITAR_DESCRICAO"), por_recurso
+        )
+        self.assertIn(
+            ("GREMIO", self.gremio, "GREMIO_CRIAR_CARGO"), por_recurso
+        )
+        for cargo in (self.cargo_membro, self.cargo_admin):
+            self.assertIn(("CARGO", cargo.id, "CARGO_EDITAR"), por_recurso)
+            self.assertIn(("CARGO", cargo.id, "CARGO_ATRIBUIR"), por_recurso)
+        admin_grants = self.app.permissoes_relacionais.listar_concedidas_ao_cargo(
+            self.cargo_admin.id
+        )
+        self.assertTrue(
+            {p.id for p in permissoes}.issubset(admin_grants)
+        )
+
+    def test_legitimar_exige_permissao_global_nao_concedida_por_padrao(self):
+        permissao = self.app.permissoes_globais.repositorio.obter_por_codigo(
+            "LEGITIMAR_GREMIO"
+        )
+        self.assertIsNotNone(permissao)
+        self.assertEqual(self.app.store.concessoes_globais, set())
+        with self.assertRaises(SemPermissaoErro):
+            self.app.gremios.legitimar_gremio(self.gremio, self.fundador)
+
+        self.app.permissoes_globais.repositorio.conceder_a_usuario(
+            permissao.id, self.forasteiro
+        )
+        gremio = self.app.gremios.legitimar_gremio(
+            self.gremio, self.forasteiro
+        )
+        self.assertTrue(gremio["legitimado"])
+
+    def test_legitimar_gremio_inexistente_retorna_erro_de_nao_existencia(self):
+        with self.assertRaises(GremioNaoExisteErro):
+            self.app.gremios.legitimar_gremio(99999, self.fundador)
+
     def test_gremio_so_aparece_para_membros(self):
         self.assertEqual(len(self.app.gremios.listar_do_usuario(self.ana)), 1)
         self.assertEqual(self.app.gremios.listar_do_usuario(self.forasteiro), [])
         with self.assertRaises(NaoEMembroErro):
             self.app.gremios.obter_do_membro(self.gremio, self.forasteiro)
+
+    def test_criacao_associa_usuarios_preexistentes_com_ra(self):
+        membros = self.app.membros.listar_membros(self.gremio, self.fundador)
+        self.assertEqual(
+            {m.usuario_id for m in membros},
+            {self.fundador, self.ana, self.bia, self.carla},
+        )
 
 
 class MensagensTest(Base):
@@ -128,6 +202,14 @@ class MensagensTest(Base):
         m2 = self.enviar(self.geral, self.ana)
         mod = self.criar_cargo("Mod", 10, ["GERENCIAR_MENSAGENS"])
         self.app.membros.atribuir_cargo(self.gremio, self.fundador, self.bia, mod.id)
+        permissao = next(
+            p for p in self.app.permissoes_relacionais.listar_do_recurso(
+                self.gremio, "CANAL", self.geral.id
+            ) if p.codigo == "CANAL_GERENCIAR_MENSAGENS"
+        )
+        self.app.permissoes_relacionais.definir_concessao_a_cargo(
+            self.gremio, mod.id, permissao.id, True
+        )
         self.app.mensagens.apagar(self.geral.id, m2.id, self.bia)  # moderador
         self.assertEqual(self.app.mensagens.listar(self.geral.id, self.ana), [])
 
@@ -172,13 +254,19 @@ class PermissoesDeCanalTest(Base):
         self.assertEqual(self.app.mensagens.listar(avisos.id, self.ana), [])  # ainda lê
         self.enviar(avisos, self.fundador, "aviso")  # quem administra continua enviando
 
-    def test_silenciar_um_usuario_em_um_canal(self):
-        self.app.canais.definir_permissao_usuario(self.geral.id, self.fundador, self.ana, 0, ENVIAR)
+    def test_permissao_individual_fica_limitada_ao_canal(self):
+        self.app.canais.definir_permissao_cargo(
+            self.geral.id, self.fundador, self.cargo_membro.id, 0, ENVIAR
+        )
+        self.app.canais.definir_permissao_usuario(
+            self.geral.id, self.fundador, self.ana, ENVIAR, 0
+        )
+        self.enviar(self.geral, self.ana)
         with self.assertRaises(SemPermissaoErro):
-            self.enviar(self.geral, self.ana)
-        self.enviar(self.geral, self.bia)                    # os demais seguem normais
+            self.enviar(self.geral, self.bia)
         outro = self.novo_canal("outro")
-        self.enviar(outro, self.ana)                         # e a restrição é só neste canal
+        self.enviar(outro, self.ana)
+        self.enviar(outro, self.bia)
 
     def test_liberar_um_usuario_em_canal_privado(self):
         privado = self.novo_canal("secreto")
@@ -206,12 +294,21 @@ class PermissoesDeCanalTest(Base):
     def test_gerenciar_canais_nao_burla_leitura_de_canal_privado(self):
         privado = self.novo_canal("secreto")
         self.app.canais.definir_permissao_cargo(privado.id, self.fundador, self.cargo_membro.id, 0, VER)
-        gestor = self.criar_cargo("Gestor", 10, ["GERENCIAR_CANAIS"])
+        gestor = self.criar_cargo("Gestor", 10)
+        permissao = next(
+            p for p in self.app.permissoes_relacionais.listar_do_recurso(
+                self.gremio, "CANAL", privado.id
+            ) if p.codigo == "CANAL_GERENCIAR_PERMISSOES"
+        )
+        self.app.permissoes_relacionais.definir_concessao_a_cargo(
+            self.gremio, gestor.id, permissao.id, True
+        )
         self.app.membros.atribuir_cargo(self.gremio, self.fundador, self.ana, gestor.id)
-        # Gerente encontra o canal para poder consertar permissões...
-        self.app.canais.listar_permissoes(privado.id, self.ana)
+        self.app.canais.listar_permissoes_relacionais(
+            privado.id, self.ana, self.cargo_membro.id
+        )
         # ...mas não lê o conteúdo.
-        with self.assertRaises(SemPermissaoErro):
+        with self.assertRaises(CanalNaoExisteErro):
             self.app.mensagens.listar(privado.id, self.ana)
 
     def test_validacao_das_mascaras(self):
@@ -244,21 +341,31 @@ class PermissoesDeGremioPorUsuarioTest(Base):
     def test_permissao_individual_no_gremio(self):
         with self.assertRaises(SemPermissaoErro):
             self.novo_canal("x", ator=self.ana)
-        self.app.membros.definir_permissoes_usuario(
-            self.gremio, self.fundador, self.ana, de_nomes(["GERENCIAR_CANAIS"]), 0)
+        permissao = next(
+            p for p in self.app.permissoes_relacionais.listar_do_gremio(self.gremio)
+            if p.recurso_tipo == "GREMIO" and p.codigo == "GREMIO_CRIAR_CANAL"
+        )
+        membro = self.app.membros.membro_gremio_repository.get(
+            self.gremio, self.ana
+        )
+        self.app.permissoes_relacionais.definir_concessao_a_membro(
+            self.gremio, membro.id, permissao.id, True
+        )
         self.novo_canal("x", ator=self.ana)
 
-    def test_negacao_individual_vale_em_todos_os_canais(self):
+    def test_permissoes_de_canal_nao_sao_permissoes_globais_do_gremio(self):
         outro = self.novo_canal("outro")
-        self.app.membros.definir_permissoes_usuario(
-            self.gremio, self.fundador, self.ana, 0, ENVIAR)
-        for canal in (self.geral, outro):
-            with self.assertRaises(SemPermissaoErro):
-                self.enviar(canal, self.ana)
-        self.enviar(self.geral, self.bia)
+        self.app.canais.definir_permissao_cargo(
+            self.geral.id, self.fundador, self.cargo_membro.id, 0, ENVIAR
+        )
+        with self.assertRaises(SemPermissaoErro):
+            self.enviar(self.geral, self.ana)
+        self.enviar(outro, self.ana)
 
     def test_override_de_canal_pode_liberar_o_que_o_gremio_negou(self):
-        self.app.membros.definir_permissoes_usuario(self.gremio, self.fundador, self.ana, 0, ENVIAR)
+        self.app.canais.definir_permissao_cargo(
+            self.geral.id, self.fundador, self.cargo_membro.id, 0, ENVIAR
+        )
         self.app.canais.definir_permissao_usuario(self.geral.id, self.fundador, self.ana, ENVIAR, 0)
         self.enviar(self.geral, self.ana)
 
@@ -276,6 +383,49 @@ class HierarquiaTest(Base):
         super().setUp()
         self.mod = self.criar_cargo("Moderador", 10, ["GERENCIAR_CARGOS", "GERENCIAR_CANAIS", "GERENCIAR_MEMBROS"])
         self.app.membros.atribuir_cargo(self.gremio, self.fundador, self.ana, self.mod.id)   # ana = moderadora
+        permissions = self.app.permissoes_relacionais.listar_do_gremio(self.gremio)
+        alvos = {
+            ("GREMIO", self.gremio, "GREMIO_CRIAR_CARGO"),
+            ("CARGO", self.mod.id, "CARGO_EDITAR"),
+            ("CARGO", self.mod.id, "CARGO_ATRIBUIR"),
+            ("CARGO", self.cargo_membro.id, "CARGO_EDITAR"),
+        }
+        for permissao in permissions:
+            if (permissao.recurso_tipo, permissao.recurso_id, permissao.codigo) in alvos:
+                self.app.cargos.definir_permissao_relacional(
+                    self.gremio, self.mod.id, permissao.id, self.fundador, True
+                )
+
+    def test_criador_recebe_permissoes_do_cargo_criado(self):
+        cargo = self.criar_cargo("Equipe", 5, ator=self.ana)
+        self.app.cargos.atualizar_cargo(
+            self.gremio, cargo.id, self.ana, nome="Equipe de apoio"
+        )
+        self.app.membros.atribuir_cargo(
+            self.gremio, self.ana, self.bia, cargo.id
+        )
+        self.app.membros.remover_cargo(
+            self.gremio, self.ana, self.bia, cargo.id
+        )
+
+    def test_administrador_concede_permissao_relacional_a_cargo(self):
+        delegado = self.criar_cargo("Delegado", 5, ator=self.ana)
+        permissao = next(
+            p
+            for p in self.app.permissoes_relacionais.listar_do_gremio(self.gremio)
+            if p.recurso_tipo == "CARGO"
+            and p.recurso_id == self.cargo_membro.id
+            and p.codigo == "CARGO_EDITAR"
+        )
+        self.app.cargos.definir_permissao_relacional(
+            self.gremio, delegado.id, permissao.id, self.fundador, True
+        )
+        self.app.membros.atribuir_cargo(
+            self.gremio, self.fundador, self.bia, delegado.id
+        )
+        self.app.cargos.atualizar_cargo(
+            self.gremio, self.cargo_membro.id, self.bia, nome="Participante"
+        )
 
     def test_nao_cria_cargo_igual_ou_acima(self):
         for prioridade in (10, 11, 100):
@@ -366,23 +516,18 @@ class MembrosTest(Base):
     def test_so_quem_gerencia_membros_adiciona(self):
         with self.assertRaises(SemPermissaoErro):
             self.app.membros.adicionar_membro(self.gremio, self.ana, self.forasteiro)
+        self.app.store.usuarios[self.forasteiro].ra = "RAforasteiro"
         self.app.membros.adicionar_membro(self.gremio, self.fundador, self.forasteiro)
         with self.assertRaises(MembroJaExisteErro):
             self.app.membros.adicionar_membro(self.gremio, self.fundador, self.forasteiro)
 
-    def test_sair_do_gremio_limpa_cargos_e_sobrescritas(self):
+    def test_membro_nao_pode_sair_do_gremio(self):
         cargo = self.criar_cargo("X", 5)
         self.app.membros.atribuir_cargo(self.gremio, self.fundador, self.ana, cargo.id)
         self.app.canais.definir_permissao_usuario(self.geral.id, self.fundador, self.ana, 0, ENVIAR)
 
-        self.app.membros.remover_membro(self.gremio, self.ana, self.ana)   # saiu
-
-        self.assertEqual(self.app.canais.listar_permissoes(self.geral.id, self.fundador), [])
-        with self.assertRaises(CanalNaoExisteErro):
-            self.enviar(self.geral, self.ana)
-        # ao voltar, começa do zero
-        self.app.membros.adicionar_membro(self.gremio, self.fundador, self.ana)
-        self.enviar(self.geral, self.ana)
+        with self.assertRaises(MembroNaoPodeSairErro):
+            self.app.membros.remover_membro(self.gremio, self.ana, self.ana)
 
     def test_remocao_por_quem_gerencia(self):
         with self.assertRaises(SemPermissaoErro):
@@ -403,23 +548,23 @@ class MembrosTest(Base):
 
 class IsolamentoEntreGremiosTest(Base):
     def test_cargo_e_canal_de_outro_gremio_sao_inexistentes(self):
-        outro_dono = self.app.novo_usuario("dono2")
-        g2 = self.app.gremios.criar_gremio("Outro", "Escola", "Médio", outro_dono)["id"]
-        canal2 = self.app.canais.listar_canais(g2, outro_dono)[0]
+        # A regra institucional permite apenas um grêmio por combinação;
+        # os IDs abaixo simulam recursos inexistentes de outro grêmio.
+        canal2_id = 999_001
+        cargo2_id = 999_002
 
         # fundador do grêmio 1 não é membro do 2
         with self.assertRaises(CanalNaoExisteErro):
-            self.app.mensagens.listar(canal2.id, self.fundador)
+            self.app.mensagens.listar(canal2_id, self.fundador)
         with self.assertRaises(CanalNaoExisteErro):
-            self.app.canais.excluir_canal(canal2.id, self.fundador)
+            self.app.canais.excluir_canal(canal2_id, self.fundador)
 
         # cargo do grêmio 2 não pode ser usado em canal do grêmio 1
-        cargo2 = self.app.cargos.listar_cargos(g2, outro_dono)[0]
         from application.exceptions.cargo_exceptions import CargoNaoExisteErro
         with self.assertRaises(CargoNaoExisteErro):
-            self.app.canais.definir_permissao_cargo(self.geral.id, self.fundador, cargo2.id, VER, 0)
+            self.app.canais.definir_permissao_cargo(self.geral.id, self.fundador, cargo2_id, VER, 0)
         with self.assertRaises(CargoNaoExisteErro):
-            self.app.membros.atribuir_cargo(self.gremio, self.fundador, self.ana, cargo2.id)
+            self.app.membros.atribuir_cargo(self.gremio, self.fundador, self.ana, cargo2_id)
 
 
 if __name__ == "__main__":

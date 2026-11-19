@@ -15,6 +15,9 @@ class Cargo:
         prioridade: int = 0,
         permissoes: int = 0,
         padrao: bool = False,
+        max_ocupantes: int = 0,
+        permite_atribuicao: bool = False,
+        permissao_administracao: int = 0,
     ):
         self.id = id
         self.gremio_id = gremio_id
@@ -23,3 +26,6 @@ class Cargo:
         self.prioridade = prioridade
         self.permissoes = permissoes
         self.padrao = padrao
+        self.max_ocupantes = max_ocupantes
+        self.permite_atribuicao = permite_atribuicao
+        self.permissao_administracao = permissao_administracao

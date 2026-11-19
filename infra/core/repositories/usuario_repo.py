@@ -28,6 +28,15 @@ class UsuarioRepository:
         orm_users = self.db.query(UsuarioORM).filter(UsuarioORM.id.in_(set(ids))).all()
         return {u.id: usuario_to_domain(u) for u in orm_users}
 
+    def listar_com_ra(self) -> list[Usuario]:
+        """Lista usuários com RA preenchido para associação institucional."""
+        orm_users = (
+            self.db.query(UsuarioORM)
+            .filter(UsuarioORM.ra.is_not(None), UsuarioORM.ra != "")
+            .all()
+        )
+        return [usuario_to_domain(u) for u in orm_users]
+
     def get_by_email(self, email: str) -> Usuario | None:
         orm_user = self.db.query(UsuarioORM).filter(UsuarioORM.email == email).first()
         return usuario_to_domain(orm_user)
@@ -45,7 +54,7 @@ class UsuarioRepository:
         try:
             orm_user = usuario_to_orm(usuario)
             self.db.add(orm_user)
-            self.db.commit()
+            self.db.flush()
             self.db.refresh(orm_user)
             return usuario_to_domain(orm_user)
             

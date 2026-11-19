@@ -16,3 +16,6 @@ class CargoORM(Base):
     prioridade: Mapped[int] = mapped_column(Integer, default=0)
     permissoes: Mapped[int] = mapped_column(Integer, default=0)
     padrao: Mapped[bool] = mapped_column(Boolean, default=False)
+    max_ocupantes: Mapped[int] = mapped_column(Integer, default=0)
+    permite_atribuicao: Mapped[bool] = mapped_column(Boolean, default=False)
+    permissao_administracao: Mapped[int] = mapped_column(Integer, default=0)

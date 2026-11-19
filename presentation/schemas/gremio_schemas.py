@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 
 class GremioCriarSchema(BaseModel):
@@ -13,11 +13,15 @@ class GremioCriarSchema(BaseModel):
 
 
 class GremioAtualizarSchema(BaseModel):
-    nome_gremio: Optional[str] = Field(
+    nome: Optional[str] = Field(
         default=None,
         min_length=2,
-        max_length=255,
-        description="Novo nome do grêmio estudantil",
-        examples=["Novo Nome do Grêmio"]
+        max_length=100,
+        description="Novo nome do grêmio",
+        validation_alias=AliasChoices("nome", "nome_gremio"),
     )
-
+    descricao: Optional[str] = Field(
+        default=None,
+        max_length=1000,
+        description="Descrição do grêmio",
+    )

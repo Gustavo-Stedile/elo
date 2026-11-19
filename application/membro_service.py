@@ -4,12 +4,18 @@ from application.autorizacao_service import AutorizacaoService
 from application.exceptions.cargo_exceptions import (
     CargoNaoExisteErro,
     CargoPadraoProtegidoErro,
+    LimiteOcupantesCargoErro,
 )
 from application.exceptions.autorizacao_exceptions import PermissaoInvalidaErro
+from application.exceptions.autorizacao_exceptions import SemPermissaoErro
 from application.exceptions.membro_gremio_exceptions import (
     FundadorProtegidoErro,
     MembroNaoExisteErro,
+    MembroNaoPodeSairErro,
+    UsuarioForaDaInstituicaoEtapaErro,
 )
+from application.ra_resolver import resolvedor_ra
+from application.permissao_relacional_service import PermissaoRelacionalService
 from application.exceptions.usuario_exceptions import UsuarioNaoExisteErro
 from domain.core import MembroGremio
 from domain.core.permissoes import TODAS, Permissao, e_valido
@@ -43,6 +49,7 @@ class MembroService:
         usuario_repository: UsuarioRepository,
         autorizacao: AutorizacaoService,
         uow: UnitOfWork,
+        permissoes_relacionais: PermissaoRelacionalService | None = None,
     ):
         self.gremio_repository = gremio_repository
         self.membro_gremio_repository = membro_gremio_repository
@@ -51,6 +58,7 @@ class MembroService:
         self.usuario_repository = usuario_repository
         self.autorizacao = autorizacao
         self.uow = uow
+        self.permissoes_relacionais = permissoes_relacionais
 
     # ------------------------------------------------------------------
     def listar_membros(self, gremio_id: int, ator_id: int) -> list[MembroDetalhe]:
@@ -82,6 +90,18 @@ class MembroService:
         usuario = self.usuario_repository.get_by_id(usuario_id)
         if not usuario:
             raise UsuarioNaoExisteErro()
+        if not usuario.ra:
+            raise UsuarioForaDaInstituicaoEtapaErro(
+                "Somente usuários com RA podem ser membros deste Grêmio."
+            )
+
+        dados_ra = resolvedor_ra.resolve(usuario.ra)
+        if (
+            not dados_ra
+            or dados_ra.instituicao != ctx.gremio.instituicao
+            or dados_ra.etapa_ensino != ctx.gremio.etapa_ensino
+        ):
+            raise UsuarioForaDaInstituicaoEtapaErro()
 
         membro = self.membro_gremio_repository.create(
             MembroGremio(id=None, usuario_id=usuario_id, gremio_id=gremio_id)
@@ -98,14 +118,14 @@ class MembroService:
         )
 
     def remover_membro(self, gremio_id: int, ator_id: int, usuario_id: int) -> None:
-        """Remove um membro, ou permite que o próprio usuário saia do grêmio."""
+        """Remove um membro; o próprio usuário nunca pode sair do grêmio."""
         ctx = self.autorizacao.contexto(gremio_id, ator_id)
 
         if usuario_id == ctx.gremio.fundador_id:
             raise FundadorProtegidoErro()
 
         if usuario_id == ator_id:
-            alvo = ctx.membro  # saindo por conta própria: não exige permissão
+            raise MembroNaoPodeSairErro()
         else:
             self.autorizacao.exigir(ctx.permissoes, Permissao.GERENCIAR_MEMBROS)
             alvo_ctx = self._contexto_alvo(gremio_id, usuario_id)
@@ -124,11 +144,14 @@ class MembroService:
     def atribuir_cargo(
         self, gremio_id: int, ator_id: int, usuario_id: int, cargo_id: int
     ) -> None:
-        ctx = self.autorizacao.exigir_gremio(
-            gremio_id, ator_id, Permissao.GERENCIAR_CARGOS
-        )
+        ctx = self.autorizacao.contexto(gremio_id, ator_id)
         cargo = self._cargo_atribuivel(ctx, gremio_id, cargo_id)
         membro = self._membro(gremio_id, usuario_id)
+        if cargo.max_ocupantes > 0:
+            ocupantes = self.cargo_repository.contar_ocupantes(cargo.id)
+            ja_tem = self.cargo_repository.listar_do_membro(membro.id)
+            if cargo.id not in [c.id for c in ja_tem] and ocupantes >= cargo.max_ocupantes:
+                raise LimiteOcupantesCargoErro()
 
         self.cargo_repository.atribuir(membro.id, cargo.id)
         self.uow.commit()
@@ -136,9 +159,7 @@ class MembroService:
     def remover_cargo(
         self, gremio_id: int, ator_id: int, usuario_id: int, cargo_id: int
     ) -> None:
-        ctx = self.autorizacao.exigir_gremio(
-            gremio_id, ator_id, Permissao.GERENCIAR_CARGOS
-        )
+        ctx = self.autorizacao.contexto(gremio_id, ator_id)
         cargo = self._cargo_atribuivel(ctx, gremio_id, cargo_id)
         membro = self._membro(gremio_id, usuario_id)
 
@@ -212,4 +233,9 @@ class MembroService:
                 "O cargo padrão já pertence a todos os membros."
             )
         self.autorizacao.exigir_acima(ctx, cargo.prioridade)
+        if not self.permissoes_relacionais:
+            raise SemPermissaoErro(["CARGO_ATRIBUIR"])
+        self.permissoes_relacionais.exigir_codigo_cargo(
+            ctx.membro.id, gremio_id, cargo.id, "CARGO_ATRIBUIR"
+        )
         return cargo

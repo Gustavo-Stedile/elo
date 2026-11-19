@@ -47,6 +47,9 @@ class CargoRepository:
             orm_obj.cor = cargo.cor
             orm_obj.prioridade = cargo.prioridade
             orm_obj.permissoes = cargo.permissoes
+            orm_obj.max_ocupantes = cargo.max_ocupantes
+            orm_obj.permite_atribuicao = cargo.permite_atribuicao
+            orm_obj.permissao_administracao = cargo.permissao_administracao
             self.db.flush()
             return cargo_to_domain(orm_obj)
         except IntegrityError as e:
@@ -91,6 +94,10 @@ class CargoRepository:
             return
         self.db.add(MembroCargoORM(membro_id=membro_id, cargo_id=cargo_id))
         self.db.flush()
+
+    def contar_ocupantes(self, cargo_id: int) -> int:
+        stmt = select(MembroCargoORM).where(MembroCargoORM.cargo_id == cargo_id)
+        return len(self.db.scalars(stmt).all())
 
     def desatribuir(self, membro_id: int, cargo_id: int) -> None:
         self.db.execute(

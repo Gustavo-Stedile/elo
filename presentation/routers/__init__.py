@@ -9,6 +9,11 @@ from presentation.routers.canal_router import (
     gremio_canais_router,
 )
 from presentation.routers.mensagem_router import router as mensagem_router
+from presentation.routers.enquete_comunicado_router import (
+    enquete_gremio_router,
+    enquete_canal_router,
+    comunicado_router,
+)
 
 api_router = APIRouter()
 
@@ -20,3 +25,6 @@ api_router.include_router(cargo_router)
 api_router.include_router(gremio_canais_router)
 api_router.include_router(canal_router)
 api_router.include_router(mensagem_router)
+api_router.include_router(enquete_gremio_router)
+api_router.include_router(enquete_canal_router)
+api_router.include_router(comunicado_router)

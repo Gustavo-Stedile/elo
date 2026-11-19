@@ -37,6 +37,9 @@ def criar_cargo(
         cor=payload.cor,
         prioridade=payload.prioridade,
         permissoes=de_nomes(payload.permissoes),
+        max_ocupantes=payload.max_ocupantes,
+        permite_atribuicao=payload.permite_atribuicao,
+        permissao_administracao=de_nomes([payload.permissao_administracao]),
     )
     return CargoResposta.de_dominio(cargo)
 
@@ -59,8 +62,62 @@ def atualizar_cargo(
         permissoes=(
             None if payload.permissoes is None else de_nomes(payload.permissoes)
         ),
+        max_ocupantes=payload.max_ocupantes,
+        permite_atribuicao=payload.permite_atribuicao,
+        permissao_administracao=(
+            None if payload.permissao_administracao is None
+            else de_nomes([payload.permissao_administracao])
+        ),
     )
     return CargoResposta.de_dominio(cargo)
+
+
+@router.get("/{cargo_id}/permissoes-relacionais")
+def listar_permissoes_relacionais(
+    gremio_id: int,
+    cargo_id: int,
+    usuario_id: int = Depends(require_token),
+    service: CargoService = Depends(get_cargo_service),
+):
+    return {
+        "permissoes": service.listar_permissoes_relacionais(
+            gremio_id, cargo_id, usuario_id
+        )
+    }
+
+
+@router.put(
+    "/{cargo_id}/permissoes-relacionais/{permissao_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def conceder_permissao_relacional(
+    gremio_id: int,
+    cargo_id: int,
+    permissao_id: int,
+    usuario_id: int = Depends(require_token),
+    service: CargoService = Depends(get_cargo_service),
+):
+    service.definir_permissao_relacional(
+        gremio_id, cargo_id, permissao_id, usuario_id, conceder=True
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete(
+    "/{cargo_id}/permissoes-relacionais/{permissao_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def revogar_permissao_relacional(
+    gremio_id: int,
+    cargo_id: int,
+    permissao_id: int,
+    usuario_id: int = Depends(require_token),
+    service: CargoService = Depends(get_cargo_service),
+):
+    service.definir_permissao_relacional(
+        gremio_id, cargo_id, permissao_id, usuario_id, conceder=False
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/{cargo_id}", status_code=status.HTTP_204_NO_CONTENT)
