@@ -8,6 +8,8 @@ class Mensagem:
         criada_em: datetime,
         editada_em: Optional[datetime] = None,
         autor_nome: Optional[str] = None,
+        marcada_inapropriada_ia: bool = False,
+        avaliacao_admin: Optional[bool] = None,
     ):
         self.id = id
         self.canal_id = canal_id
@@ -16,3 +18,5 @@ class Mensagem:
         self.criada_em = criada_em
         self.editada_em = editada_em
         self.autor_nome = autor_nome  # preenchido pela camada de aplicação
+        self.marcada_inapropriada_ia = marcada_inapropriada_ia
+        self.avaliacao_admin = avaliacao_admin

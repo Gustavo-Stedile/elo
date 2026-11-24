@@ -14,6 +14,10 @@ from presentation.deps.db_deps import get_db
 from presentation.deps.gremio_deps import get_autorizacao_service
 
 from application import AutorizacaoService, CanalService, MensagemService
+from application.moderacao_mensagem import ModeradorMensagem
+
+
+_moderador_mensagem = ModeradorMensagem()
 
 
 def get_canal_service(
@@ -40,4 +44,5 @@ def get_mensagem_service(
         usuario_repository=UsuarioRepository(db),
         autorizacao=autorizacao,
         uow=UnitOfWork(db),
+        moderador=_moderador_mensagem,
     )

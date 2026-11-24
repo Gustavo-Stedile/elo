@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import DateTime, ForeignKey, Index, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from infra.database import Base
 
@@ -17,3 +17,5 @@ class MensagemORM(Base):
     conteudo: Mapped[str] = mapped_column(Text)
     criada_em: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     editada_em: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    marcada_inapropriada_ia: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    avaliacao_admin: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)

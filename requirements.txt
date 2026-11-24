@@ -17,6 +17,8 @@ pydantic_core==2.50.1
 PyJWT==2.15.1
 SQLAlchemy==2.1.5
 starlette==1.8.0
+onnxruntime==1.32.0
+tokenizers==0.22.1
 typing-inspection==0.4.4
 typing_extensions==4.16.0
 uvicorn==0.54.0

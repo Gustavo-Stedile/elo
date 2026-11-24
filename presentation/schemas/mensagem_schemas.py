@@ -18,6 +18,8 @@ class MensagemResposta(BaseModel):
     conteudo: str
     criada_em: datetime
     editada_em: Optional[datetime]
+    marcada_inapropriada_ia: bool
+    avaliacao_admin: Optional[bool]
 
     @classmethod
     def de_dominio(cls, m: Mensagem) -> "MensagemResposta":
@@ -29,4 +31,10 @@ class MensagemResposta(BaseModel):
             conteudo=m.conteudo,
             criada_em=m.criada_em,
             editada_em=m.editada_em,
+            marcada_inapropriada_ia=m.marcada_inapropriada_ia,
+            avaliacao_admin=m.avaliacao_admin,
         )
+
+
+class MensagemAvaliacaoSchema(BaseModel):
+    apropriada: bool

@@ -5,65 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b22b859f-591a-465a-be81-c5fe4de6611c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Especificacoes_ELO.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/enquete_comunicado_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/excecoes_enquete_comunicado.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/ra_resolver.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/domain/core/comunicado.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/domain/core/enquete.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infra/core/mappers/enquete_comunicado_mappers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infra/core/orm/comunicado_orm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infra/core/orm/enquete_orm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infra/core/repositories/enquete_comunicado_repo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infra/database_migrations.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/presentation/deps/enquete_comunicado_deps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/presentation/routers/enquete_comunicado_router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/presentation/schemas/enquete_comunicado_schemas.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/log_mensagem_inadequada.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modelos/multilingual-toxicity-small/onnx/model_quantized.onnx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modelos/multilingual-toxicity-small/tokenizer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ServidorELO.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ServidorELO.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PERMISSOES.md" beforeDir="false" afterPath="$PROJECT_DIR$/PERMISSOES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.db" beforeDir="false" afterPath="$PROJECT_DIR$/app.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/autorizacao_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/autorizacao_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/canal_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/canal_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/cargo_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/cargo_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/exceptions/cargo_exceptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/exceptions/cargo_exceptions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/exceptions/gremio_exceptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/exceptions/gremio_exceptions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/exceptions/membro_gremio_exceptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/exceptions/membro_gremio_exceptions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/gremio_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/gremio_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/membro_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/membro_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/usuario_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/usuario_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domain/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/domain/core/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domain/core/canal.py" beforeDir="false" afterPath="$PROJECT_DIR$/domain/core/canal.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domain/core/cargo.py" beforeDir="false" afterPath="$PROJECT_DIR$/domain/core/cargo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domain/core/gremio.py" beforeDir="false" afterPath="$PROJECT_DIR$/domain/core/gremio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/mensagem_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/mensagem_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domain/core/mensagem.py" beforeDir="false" afterPath="$PROJECT_DIR$/domain/core/mensagem.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/domain/core/permissoes.py" beforeDir="false" afterPath="$PROJECT_DIR$/domain/core/permissoes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/mappers/canal_mappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/mappers/canal_mappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/mappers/cargo_mappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/mappers/cargo_mappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/mappers/gremio_mappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/mappers/gremio_mappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/orm/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/orm/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/orm/canal_orm.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/orm/canal_orm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/orm/cargo_orm.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/orm/cargo_orm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/orm/gremio_orm.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/orm/gremio_orm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/repositories/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/repositories/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/repositories/canal_repo.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/repositories/canal_repo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/repositories/cargo_repo.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/repositories/cargo_repo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/repositories/gremio_repo.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/repositories/gremio_repo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infra/core/repositories/usuario_repo.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/repositories/usuario_repo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infra/core/orm/mensagem_orm.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/orm/mensagem_orm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infra/core/repositories/mensagem_repo.py" beforeDir="false" afterPath="$PROJECT_DIR$/infra/core/repositories/mensagem_repo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/presentation/deps/canal_deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/deps/canal_deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/deps/gremio_deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/deps/gremio_deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/deps/usuario_deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/deps/usuario_deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/routers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/routers/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/routers/canal_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/routers/canal_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/routers/cargo_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/routers/cargo_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/routers/gremio_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/routers/gremio_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/routers/usuario_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/routers/usuario_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/schemas/canal_schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/schemas/canal_schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/schemas/cargo_schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/schemas/cargo_schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/schemas/gremio_schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/schemas/gremio_schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/presentation/schemas/usuario_schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/schemas/usuario_schemas.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/presentation/routers/mensagem_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/routers/mensagem_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/presentation/schemas/mensagem_schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/presentation/schemas/mensagem_schemas.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/support.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/support.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_servicos.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_servicos.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,6 +33,7 @@
   <component name="CopilotPersistence">
     <persistenceIdMap>
       <entry key="_C:/Users/Nicol/OneDrive/Desktop/Projetos Python/IFSP/ELO2" value="3MFJxfagcoeHMOAFmTalbCX7p3G" />
+      <entry key="_C:/Users/Nicol/OneDrive/Desktop/Projetos Python/IFSP/ServidorELO" value="3MKXfNmpYzQ9cUyUiHKNZQ2gdZW" />
     </persistenceIdMap>
   </component>
   <component name="Git.Settings">
@@ -105,33 +66,38 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.executar.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "copilot.chat.legacySessionMetadata.migrated": "true",
-    "copilot.sensitive.folder.allow.file_read.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP": "true",
-    "copilot.sensitive.folder.allow.file_read.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/IFSP": "true",
-    "copilot.sensitive.folder.allow.file_read.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/frontend_elo": "true",
-    "copilot.sensitive.folder.allow.file_write.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/frontend_elo": "true",
-    "copilot.sensitive.folder.allow.file_write.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/frontend_elo/js": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/Nicol/OneDrive/Desktop/Projetos Python/IFSP/ELO2",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.Cliente.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Servidor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.executar.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
+    &quot;copilot.sensitive.folder.allow.file_read.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP&quot;: &quot;true&quot;,
+    &quot;copilot.sensitive.folder.allow.file_read.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/IFSP&quot;: &quot;true&quot;,
+    &quot;copilot.sensitive.folder.allow.file_read.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/frontend_elo&quot;: &quot;true&quot;,
+    &quot;copilot.sensitive.folder.allow.file_write.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/ClienteELO&quot;: &quot;true&quot;,
+    &quot;copilot.sensitive.folder.allow.file_write.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/ClienteELO/js&quot;: &quot;true&quot;,
+    &quot;copilot.sensitive.folder.allow.file_write.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/frontend_elo&quot;: &quot;true&quot;,
+    &quot;copilot.sensitive.folder.allow.file_write.C:/Users/Nicol/OneDrive/Desktop/Projetos_Python/IFSP/frontend_elo/js&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Nicol/OneDrive/Desktop/Projetos Python/IFSP/ServidorELO&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Nicol\OneDrive\Desktop\Projetos Python\IFSP\ELO2" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.executar">
-    <configuration name="executar" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager">
+    <configuration name="Servidor" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ELO2" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -140,8 +106,9 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.14 (ServidorELO)" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="DEBUG_JUST_MY_CODE" value="false" />
@@ -155,34 +122,9 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ELO2" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.executar" />
-        <item itemvalue="Python.main" />
+        <item itemvalue="Python.Servidor" />
       </list>
     </recent_temporary>
   </component>

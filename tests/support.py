@@ -329,8 +329,25 @@ class FakeMensagens:
         if antes_de is not None:
             ms = [m for m in ms if m.id < antes_de]
         return [_copia(m) for m in ms][-limite:]
-    def atualizar_conteudo(self, mensagem_id, conteudo, editada_em):
-        m = self.s.mensagens[mensagem_id]; m.conteudo, m.editada_em = conteudo, editada_em; return _copia(m)
+    def atualizar_conteudo(
+        self,
+        mensagem_id,
+        conteudo,
+        editada_em,
+        marcada_inapropriada_ia=False,
+        avaliacao_admin=None,
+    ):
+        m = self.s.mensagens[mensagem_id]
+        m.conteudo = conteudo
+        m.editada_em = editada_em
+        m.marcada_inapropriada_ia = marcada_inapropriada_ia
+        m.avaliacao_admin = avaliacao_admin
+        return _copia(m)
+
+    def avaliar(self, mensagem_id, apropriada):
+        m = self.s.mensagens[mensagem_id]
+        m.avaliacao_admin = apropriada
+        return _copia(m)
     def delete(self, mensagem_id): self.s.mensagens.pop(mensagem_id, None)
 
 

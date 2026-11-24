@@ -73,6 +73,18 @@ def init_db():
                 connection.execute(text(
                     "ALTER TABLE gremios ADD COLUMN descricao VARCHAR(1000)"
                 ))
+            mensagem_columns = {
+                c["name"] for c in inspect(connection).get_columns("mensagens")
+            }
+            if "marcada_inapropriada_ia" not in mensagem_columns:
+                connection.execute(text(
+                    "ALTER TABLE mensagens ADD COLUMN "
+                    "marcada_inapropriada_ia BOOLEAN NOT NULL DEFAULT 0"
+                ))
+            if "avaliacao_admin" not in mensagem_columns:
+                connection.execute(text(
+                    "ALTER TABLE mensagens ADD COLUMN avaliacao_admin BOOLEAN"
+                ))
             garantir_unicidade_gremio_instituicao_etapa(connection)
 
 init_db()

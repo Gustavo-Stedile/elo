@@ -17,12 +17,22 @@ class MensagemRepository:
 
     def create(self, mensagem: Mensagem) -> Mensagem:
         orm_obj = mensagem_to_orm(mensagem)
+        orm_obj.marcada_inapropriada_ia = mensagem.marcada_inapropriada_ia
+        orm_obj.avaliacao_admin = mensagem.avaliacao_admin
         self.db.add(orm_obj)
         self.db.flush()
-        return mensagem_to_domain(orm_obj)
+        return self._para_dominio(orm_obj)
 
     def get_by_id(self, id: int) -> Mensagem | None:
-        return mensagem_to_domain(self.db.get(MensagemORM, id))
+        return self._para_dominio(self.db.get(MensagemORM, id))
+
+    @staticmethod
+    def _para_dominio(orm_obj: MensagemORM | None) -> Mensagem | None:
+        mensagem = mensagem_to_domain(orm_obj)
+        if mensagem is not None and orm_obj is not None:
+            mensagem.marcada_inapropriada_ia = orm_obj.marcada_inapropriada_ia
+            mensagem.avaliacao_admin = orm_obj.avaliacao_admin
+        return mensagem
 
     def listar(
         self,
@@ -45,22 +55,41 @@ class MensagemRepository:
                 .order_by(MensagemORM.id.asc())
                 .limit(limite)
             )
-            return [mensagem_to_domain(m) for m in self.db.scalars(stmt).all()]
+            return [self._para_dominio(m) for m in self.db.scalars(stmt).all()]
 
         if antes_de is not None:
             base = base.where(MensagemORM.id < antes_de)
 
         stmt = base.order_by(MensagemORM.id.desc()).limit(limite)
-        mensagens = [mensagem_to_domain(m) for m in self.db.scalars(stmt).all()]
+        mensagens = [self._para_dominio(m) for m in self.db.scalars(stmt).all()]
         mensagens.reverse()
         return mensagens
 
-    def atualizar_conteudo(self, mensagem_id: int, conteudo: str, editada_em: datetime) -> Mensagem:
+    def atualizar_conteudo(
+        self,
+        mensagem_id: int,
+        conteudo: str,
+        editada_em: datetime,
+        marcada_inapropriada_ia: bool,
+        avaliacao_admin: bool | None,
+    ) -> Mensagem:
         orm_obj = self.db.get(MensagemORM, mensagem_id)
         orm_obj.conteudo = conteudo
         orm_obj.editada_em = editada_em
+        orm_obj.marcada_inapropriada_ia = marcada_inapropriada_ia
+        orm_obj.avaliacao_admin = avaliacao_admin
         self.db.flush()
-        return mensagem_to_domain(orm_obj)
+        return self._para_dominio(orm_obj)
+
+    def avaliar(
+        self, mensagem_id: int, apropriada: bool
+    ) -> Mensagem | None:
+        orm_obj = self.db.get(MensagemORM, mensagem_id)
+        if not orm_obj:
+            return None
+        orm_obj.avaliacao_admin = apropriada
+        self.db.flush()
+        return self._para_dominio(orm_obj)
 
     def delete(self, mensagem_id: int) -> None:
         orm_obj = self.db.get(MensagemORM, mensagem_id)

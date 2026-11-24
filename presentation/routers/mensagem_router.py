@@ -6,6 +6,7 @@ from application import MensagemService
 from presentation.deps.auth_deps import require_token
 from presentation.deps.canal_deps import get_mensagem_service
 from presentation.schemas.mensagem_schemas import (
+    MensagemAvaliacaoSchema,
     MensagemEnviarSchema,
     MensagemResposta,
 )
@@ -50,6 +51,20 @@ def editar_mensagem(
     service: MensagemService = Depends(get_mensagem_service),
 ):
     mensagem = service.editar(canal_id, mensagem_id, usuario_id, payload.conteudo)
+    return MensagemResposta.de_dominio(mensagem)
+
+
+@router.patch("/{mensagem_id}/avaliacao", response_model=MensagemResposta)
+def avaliar_mensagem(
+    canal_id: int,
+    mensagem_id: int,
+    payload: MensagemAvaliacaoSchema,
+    usuario_id: int = Depends(require_token),
+    service: MensagemService = Depends(get_mensagem_service),
+):
+    mensagem = service.avaliar(
+        canal_id, mensagem_id, usuario_id, payload.apropriada
+    )
     return MensagemResposta.de_dominio(mensagem)
 
 
